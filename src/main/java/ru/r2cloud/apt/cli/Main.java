@@ -73,6 +73,10 @@ public class Main {
 				System.exit(-1);
 				return;
 			}
+		} else {
+			// scheme should be validated by jcommander above
+			System.exit(-1);
+			return;
 		}
 
 		GpgSigner signer = null;
