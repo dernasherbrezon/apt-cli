@@ -8,7 +8,7 @@ import com.beust.jcommander.Parameters;
 @Parameters(commandDescription = "Upload one or multiple .deb files to APT repository")
 public class SaveCommand {
 
-	@Parameter(names = "--patterns", description = "File patterns to upload. Example: *.deb", required = true)
+	@Parameter(names = "--patterns", description = "File patterns to upload. Example: ./*.deb", required = true)
 	private List<String> patterns;
 
 	public List<String> getPatterns() {

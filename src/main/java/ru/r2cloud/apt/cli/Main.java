@@ -1,12 +1,18 @@
 package ru.r2cloud.apt.cli;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +28,7 @@ import ru.r2cloud.apt.AptRepository;
 import ru.r2cloud.apt.AptRepositoryImpl;
 import ru.r2cloud.apt.FileTransport;
 import ru.r2cloud.apt.GpgSigner;
+import ru.r2cloud.apt.GpgSignerImpl;
 import ru.r2cloud.apt.Transport;
 import ru.r2cloud.apt.cli.model.CleanupCommand;
 import ru.r2cloud.apt.cli.model.CommandLineArgs;
@@ -85,7 +92,7 @@ public class Main {
 			config.setKeyname(args.getKeyname());
 			config.setGpgCommand(args.getGpgExecutable());
 			try (InputStream is = new BufferedInputStream(new FileInputStream(args.getPassphraseFile()))) {
-				config.setPassphrase(new String(IOUtils.toByteArray(is), StandardCharsets.UTF_8));
+				config.setPassphrase(new String(IOUtils.toByteArray(is), StandardCharsets.UTF_8).trim());
 			} catch (IOException e) {
 				LOG.error("unable to read passphrase file: {}", args.getPassphraseFile(), e);
 				System.exit(-1);
@@ -94,6 +101,7 @@ public class Main {
 			if (args.getGpgArguments() != null) {
 				config.setGpgArguments(args.getGpgArguments());
 			}
+			signer = new GpgSignerImpl(config);
 		}
 
 		AptRepository aptMan = new AptRepositoryImpl(args.getCodename(), args.getComponent(), signer, transport);
@@ -101,7 +109,17 @@ public class Main {
 			if (parser.getParsedCommand().equals("save")) {
 				List<DebFile> files = new ArrayList<>();
 				for (String curPattern : save.getPatterns()) {
-					// FIXME
+					@SuppressWarnings("resource")
+					PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + curPattern);
+					try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(new File(".").toPath(), matcher::matches)) {
+						dirStream.forEach(path -> {
+							try {
+								files.add(new DebFile(path.toFile()));
+							} catch (Exception e) {
+								LOG.info("skipping: {} not a deb file", path, e);
+							}
+						});
+					}
 				}
 				aptMan.saveFiles(files);
 			} else if (parser.getParsedCommand().equals("cleanup")) {
