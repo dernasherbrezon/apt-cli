@@ -13,6 +13,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
@@ -32,7 +33,7 @@ public class AwsTransport implements Transport {
 	private final String basepath;
 	private final AmazonS3 client;
 
-	public AwsTransport(String bucket, String awsRegion, String basepath, BasicAWSCredentials creds) {
+	public AwsTransport(String bucket, String awsRegion, String basepath, int timeout, BasicAWSCredentials creds) {
 		this.bucket = bucket;
 		if (basepath != null && !basepath.equals("")) {
 			if (!basepath.endsWith("/")) {
@@ -47,6 +48,9 @@ public class AwsTransport implements Transport {
 		if (creds != null) {
 			builder = builder.withCredentials(new AWSStaticCredentialsProvider(creds));
 		}
+		ClientConfiguration config = new ClientConfiguration();
+		config.setConnectionTimeout(timeout);
+		builder = builder.withClientConfiguration(config);
 		builder = builder.withRegion(awsRegion);
 		client = builder.build();
 	}

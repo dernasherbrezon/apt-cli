@@ -1,10 +1,14 @@
 package ru.r2cloud.apt.cli.model;
 
+import java.util.List;
+
 import com.beust.jcommander.Parameter;
+
+import ru.r2cloud.apt.cli.UrlValidator;
 
 public class CommandLineArgs {
 
-	@Parameter(names = "--url", description = "Url of APT repository. Supported 2 type of URLS: \"s3://\" and \"file://\". For example, s3://r2cloud/sub-folder", required = true)
+	@Parameter(names = "--url", description = "Url of APT repository. Supported 2 type of URLS: \"s3://\" and \"file://\". For example, s3://r2cloud/sub-folder", required = true, validateWith = UrlValidator.class)
 	private String url;
 
 	@Parameter(names = "--aws-region", description = "AWS S3 region for the specified bucket.")
@@ -22,14 +26,25 @@ public class CommandLineArgs {
 	@Parameter(names = "--gpg-passphrase-file", description = "Filename to read gpg passphrase. Example: ~/.secrets.txt")
 	private String passphraseFile;
 
-	@Parameter(names = "--gpg-executable", description = "Gpg command to use for sign. Optional. If empty, then default 'gpg' will be used. Example: /opt/homebrew/bin/gpg")
-	private String gpgExecutable;
+	@Parameter(names = "--gpg-executable", description = "Gpg command to use for sign. Example: /opt/homebrew/bin/gpg")
+	private String gpgExecutable = "gpg";
 
-	@Parameter(names = "--timeout", description = "Timeout while querying APT repository in milliseconds. Example: 10000")
-	private int timeout = 10000;
+	@Parameter(names = "--gpg-arguments", description = "Comma-separated list of gpg arguments. Example: --pinentry-mode,loopback")
+	private List<String> gpgArguments;
+
+	@Parameter(names = "--aws-timeout", description = "Connection timeout for AWS S3 service. In milliseconds. Example: 10000")
+	private int timeout = 10 * 1000;
 
 	@Parameter(names = "--help", description = "This help", help = true)
 	private boolean help;
+	
+	public List<String> getGpgArguments() {
+		return gpgArguments;
+	}
+	
+	public void setGpgArguments(List<String> gpgArguments) {
+		this.gpgArguments = gpgArguments;
+	}
 
 	public String getAwsRegion() {
 		return awsRegion;
