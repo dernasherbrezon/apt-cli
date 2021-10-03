@@ -1,0 +1,25 @@
+language: java
+bundler_args: --retry 1
+os: linux
+sudo: false
+
+install: true
+
+script:
+  - mvn clean verify
+
+cache:
+  directories:
+  - $HOME/.m2/repository
+
+before_cache:
+  - rm -rf $HOME/.m2/repository/ru/r2cloud/
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "YXqv4DY7QHV+r7/1PtLSbBMxNiiJH0ayitQVO+aK85iWfRtVGzaNZV3LUk27TDi1UC41qf2AjyH/0JGPs9A0pLmf2ufTguGVzsuMeHG+hRwlLOiWoBacHL2n8l0/KBoh6YdwqzcIj85X43WIpZxIxcElK9/m1Ys9t8JMTjTk4tzkZv+Gp2JAzgL8R8s3y7YQF9QBnEf6mRVLmEJ32Ik6zGEYuMFAExXkletNlY7AHg18Y6ELBWAL28LzHY+f+gewCgh+/D6D34ZyyUFqTeimdntDQ4K25qErRt79+g1urYLt0fsKeSTR874cMubdbtoHf+hv11DdbELbbehu79BOohE5gk7B8EhtXcJquyhaAmkTiMmNNxxTm0gldswU6kz0X9vFwK4JdY6AZUdRaftwDTqGeHSoKqwm7U9CR9/6X/P6oCRbPVX7sjnqw++Ox1/+Isk0mrakujzHAuyNYlIZLJ3EqQiG/JPYV0vkOtaSNv789yr/HwD1ha4bN8zN8K0B2VLxpF2u8HiXU8P9f98Wk19FbwFqWxsxxozHM8wpI2Enau4FAfo7IWEEfIxWrcMvJoq/5BwosDRWRqgjx920zMAipQRHJpHvL4RSkoRpfHvyG1vvn7NtJ0etK7yx3hO5EqqOR3/aBvcVnnDEEMTqcBdACuma4xjHnjcc/O9/Pd4="
+  file: "target/apt-cli.jar"
+  skip_cleanup: true
+  on:
+    tags: true
