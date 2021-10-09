@@ -70,7 +70,11 @@ public class Main {
 
 		Transport transport = null;
 		if (uri.getScheme().equalsIgnoreCase("s3")) {
-			transport = new AwsTransport(uri.getHost(), args.getAwsRegion(), uri.getPath().substring(1), args.getTimeout(), null);
+			String path = uri.getPath();
+			if (path.length() > 1 || (path.charAt(0) == '/')) {
+				path = path.substring(1);
+			}
+			transport = new AwsTransport(uri.getHost(), args.getAwsRegion(), path, args.getTimeout(), null);
 		} else if (uri.getScheme().equalsIgnoreCase("file")) {
 			String basedirPath = uri.getAuthority() + uri.getPath();
 			try {
