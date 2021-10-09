@@ -71,7 +71,7 @@ public class Main {
 		Transport transport = null;
 		if (uri.getScheme().equalsIgnoreCase("s3")) {
 			String path = uri.getPath();
-			if (path.length() > 1 || (path.charAt(0) == '/')) {
+			if (path.length() > 1 && (path.charAt(0) == '/')) {
 				path = path.substring(1);
 			}
 			transport = new AwsTransport(uri.getHost(), args.getAwsRegion(), path, args.getTimeout(), null);
