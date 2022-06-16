@@ -23,7 +23,7 @@ public class CommandLineArgs {
 	@Parameter(names = "--gpg-keyname", description = "Keyname to use for sign. Optional. If empty, then do not sign. Example: A5A70917")
 	private String keyname;
 
-	@Parameter(names = "--gpg-passphrase-file", description = "Filename to read gpg passphrase. Example: ~/.secrets.txt")
+	@Parameter(names = "--gpg-passphrase-file", description = "Filename to read gpg passphrase. Example: ~/.secrets.txt. Can be empty. In that case passphase will be loaded from gpg-agent")
 	private String passphraseFile;
 
 	@Parameter(names = "--gpg-executable", description = "Gpg command to use for sign. Example: /opt/homebrew/bin/gpg")

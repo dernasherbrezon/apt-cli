@@ -95,12 +95,14 @@ public class Main {
 			SignConfiguration config = new SignConfiguration();
 			config.setKeyname(args.getKeyname());
 			config.setGpgCommand(args.getGpgExecutable());
-			try (InputStream is = new BufferedInputStream(new FileInputStream(args.getPassphraseFile()))) {
-				config.setPassphrase(new String(IOUtils.toByteArray(is), StandardCharsets.UTF_8).trim());
-			} catch (IOException e) {
-				LOG.error("unable to read passphrase file: {}", args.getPassphraseFile(), e);
-				System.exit(-1);
-				return;
+			if (args.getPassphraseFile() != null) {
+				try (InputStream is = new BufferedInputStream(new FileInputStream(args.getPassphraseFile()))) {
+					config.setPassphrase(new String(IOUtils.toByteArray(is), StandardCharsets.UTF_8).trim());
+				} catch (IOException e) {
+					LOG.error("unable to read passphrase file: {}", args.getPassphraseFile(), e);
+					System.exit(-1);
+					return;
+				}
 			}
 			if (args.getGpgArguments() != null) {
 				config.setGpgArguments(args.getGpgArguments());
