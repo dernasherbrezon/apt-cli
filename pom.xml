@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>ru.r2cloud</groupId>
 			<artifactId>apt-man</artifactId>
-			<version>1.4</version>
+			<version>1.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

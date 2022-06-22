@@ -16,6 +16,7 @@ import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
@@ -134,7 +135,7 @@ public class Main {
             } else if (parser.getParsedCommand().equals("init")) {
                 Architecture[] architectures = new Architecture[init.getArchs().size()];
                 for (int i = 0; i < init.getArchs().size(); i++) {
-                    architectures[i] = Architecture.valueOf(init.getArchs().get(i));
+                    architectures[i] = Architecture.valueOf(init.getArchs().get(i).toUpperCase(Locale.UK));
                 }
                 aptMan.init(architectures);
             } else if (parser.getParsedCommand().equals("cleanup")) {
