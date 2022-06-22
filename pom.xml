@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ru.r2cloud</groupId>
 	<artifactId>apt-cli</artifactId>
-	<version>1.5-SNAPSHOT</version>
+	<version>1.5</version>
 	<url>https://github.com/dernasherbrezon/apt-cli</url>
 	<name>apt-cli</name>
 	<description>Cross-platform command line interface for managing APT repositories</description>
@@ -184,7 +184,7 @@
 		<url>https://github.com/dernasherbrezon/apt-cli</url>
 		<connection>scm:git:git@github.com:dernasherbrezon/apt-cli.git</connection>
 		<developerConnection>scm:git:git@github.com:dernasherbrezon/apt-cli.git</developerConnection>
-		<tag>apt-cli-1.0</tag>
+		<tag>apt-cli-1.5</tag>
 	</scm>
 
 	<issueManagement>
