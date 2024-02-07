@@ -1,4 +1,4 @@
-[![Build Status](https://app.travis-ci.com/dernasherbrezon/apt-cli.svg?branch=main)](https://app.travis-ci.com/github/dernasherbrezon/apt-cli)
+[![Main Workflow](https://github.com/dernasherbrezon/apt-cli/actions/workflows/build.yml/badge.svg)](https://github.com/dernasherbrezon/apt-cli/actions/workflows/build.yml) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dernasherbrezon_apt-cli&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dernasherbrezon_apt-cli)
 
 # About
 

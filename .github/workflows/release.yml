@@ -1,0 +1,38 @@
+name: Releases
+
+on: 
+  push:
+    tags:
+    - '*'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    
+    - name: Cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.m2/repository
+          !~/.m2/repository/ru/r2cloud/
+          ~/.sonar/cache
+        key: ${{ runner.os }}-maven
+        restore-keys: |
+          ${{ runner.os }}-maven-
+      
+    - uses: actions/setup-java@v3
+      with:
+        distribution: 'liberica'
+        java-version: '17'
+    - name: SonarCloud Scan
+      run: mvn clean package 
+    - uses: ncipollo/release-action@v1
+      with:
+        artifacts: "./target/apt-cli.jar"
