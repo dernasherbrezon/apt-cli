@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>ru.r2cloud</groupId>
 			<artifactId>apt-man</artifactId>
-			<version>1.5</version>
+			<version>1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -127,7 +127,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-release-plugin</artifactId>
-						<version>2.5.1</version>
+						<version>3.0.1</version>
 						<configuration>
 							<autoVersionSubmodules>true</autoVersionSubmodules>
 							<useReleaseProfile>false</useReleaseProfile>
