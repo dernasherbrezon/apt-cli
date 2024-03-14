@@ -8,17 +8,12 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,25 +113,19 @@ public class Main {
 		AptRepository aptMan = new AptRepositoryImpl(args.getCodename(), args.getComponent(), signer, transport);
 		try {
 			if (parser.getParsedCommand().equals("save")) {
+				List<File> matchedFiles = Util.match(save.getPatterns(), new File("."));
 				List<DebFile> files = new ArrayList<>();
-				AtomicInteger foundFiles = new AtomicInteger(0);
-				for (String curPattern : save.getPatterns()) {
-					@SuppressWarnings("resource")
-					PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + curPattern);
-					try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(new File(".").toPath(), matcher::matches)) {
-						dirStream.forEach(path -> {
-							try {
-								foundFiles.incrementAndGet();
-								files.add(new DebFile(path.toFile()));
-							} catch (Exception e) {
-								LOG.info("skipping: {} not a deb file", path, e);
-							}
-						});
+				for (File cur : matchedFiles) {
+					try {
+						files.add(new DebFile(cur));
+					} catch (ArchiveException e) {
+						LOG.info("skipping: {} not a deb file", cur.getAbsolutePath(), e);
 					}
 				}
-				// most likely invalid/unsupported format of .deb files
-				// fail in that case
-				if (foundFiles.get() > 0 && files.isEmpty()) {
+				if (!matchedFiles.isEmpty() && files.isEmpty()) {
+					// most likely invalid/unsupported format of .deb files
+					// fail in that case
+					LOG.error("can't process any deb file");
 					System.exit(-1);
 				}
 				aptMan.saveFiles(files);
