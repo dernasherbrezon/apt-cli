@@ -20,9 +20,21 @@ class Util {
 	static List<File> match(List<String> patterns, File basedir) {
 		List<File> result = new ArrayList<>(patterns.size());
 		for (String curPattern : patterns) {
+			int separator = curPattern.lastIndexOf(File.separator);
+			File patternDir = basedir;
+			if (separator != -1) {
+				patternDir = new File(basedir, curPattern.substring(0, separator));
+				curPattern = curPattern.substring(separator + 1);
+			}
+			try {
+				patternDir = patternDir.getCanonicalFile();
+			} catch (IOException e) {
+				LOG.error("can't normalize: {}", curPattern, e);
+				continue;
+			}
 			@SuppressWarnings("resource")
 			PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**" + File.separator + curPattern);
-			try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(new File(basedir.getAbsoluteFile(), "..").toPath(), matcher::matches)) {
+			try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(patternDir.toPath(), matcher::matches)) {
 				dirStream.forEach(path -> {
 					result.add(path.toFile());
 				});

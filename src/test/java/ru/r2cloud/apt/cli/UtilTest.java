@@ -1,5 +1,7 @@
 package ru.r2cloud.apt.cli;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,28 +16,36 @@ public class UtilTest {
 		patterns.add("../rtl-sdr*deb");
 		patterns.add("../librtlsdr-12.deb");
 		List<File> result = Util.match(patterns, new File("./src/test/resources/rtl-sdr"));
-		contains(result, "src/test/resources/rtl-sdr-12.deb");
-		contains(result, "src/test/resources/librtlsdr-12.deb");
+		assertTrue(contains(result, "src/test/resources/rtl-sdr-12.deb"));
+		assertTrue(contains(result, "src/test/resources/librtlsdr-12.deb"));
 	}
-	
+
 	@Test
 	public void testSameDirMatches() throws Exception {
 		List<String> patterns = new ArrayList<>();
 		patterns.add("./rtl-sdr*deb");
 		patterns.add("./librtlsdr-12.deb");
 		List<File> result = Util.match(patterns, new File("./src/test/resources/"));
-		contains(result, "src/test/resources/rtl-sdr-12.deb");
-		contains(result, "src/test/resources/librtlsdr-12.deb");
+		assertTrue(contains(result, "src/test/resources/rtl-sdr-12.deb"));
+		assertTrue(contains(result, "src/test/resources/librtlsdr-12.deb"));
 	}
-	
+
 	@Test
 	public void testNoDirInThePattern() throws Exception {
 		List<String> patterns = new ArrayList<>();
 		patterns.add("rtl-sdr*deb");
 		patterns.add("librtlsdr-12.deb");
-		List<File> result = Util.match(patterns, new File("./src/test/resources/rtl-sdr"));
-		contains(result, "src/test/resources/rtl-sdr-12.deb");
-		contains(result, "src/test/resources/librtlsdr-12.deb");
+		List<File> result = Util.match(patterns, new File("./src/test/resources/"));
+		assertTrue(contains(result, "src/test/resources/rtl-sdr-12.deb"));
+		assertTrue(contains(result, "src/test/resources/librtlsdr-12.deb"));
+	}
+
+	@Test
+	public void testNoDirInThePattern2() throws Exception {
+		List<String> patterns = new ArrayList<>();
+		patterns.add("pom.xml");
+		List<File> result = Util.match(patterns, new File("."));
+		assertTrue(contains(result, "pom.xml"));
 	}
 
 	private static boolean contains(List<File> result, String suffix) throws Exception {
