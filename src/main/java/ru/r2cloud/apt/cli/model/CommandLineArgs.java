@@ -32,16 +32,38 @@ public class CommandLineArgs {
 	@Parameter(names = "--gpg-arguments", description = "Comma-separated list of gpg arguments. Example: --pinentry-mode,loopback")
 	private List<String> gpgArguments;
 
+	@Parameter(names = "--gpg-keyfile", description = "Secret GPG key file. If specified, then will be used instead of gpg agent")
+	private String gpgKeyfile;
+
+	@Parameter(names = "--gpg-hash", description = "Hash algorithm to use for GPG signing. Default: SHA512")
+	private String gpgHashAlgorithm = "SHA512";
+
 	@Parameter(names = "--aws-timeout", description = "Connection timeout for AWS S3 service. In milliseconds. Example: 10000")
 	private int timeout = 10 * 1000;
 
 	@Parameter(names = "--help", description = "This help", help = true)
 	private boolean help;
-	
+
+	public String getGpgKeyfile() {
+		return gpgKeyfile;
+	}
+
+	public void setGpgKeyfile(String gpgKeyfile) {
+		this.gpgKeyfile = gpgKeyfile;
+	}
+
+	public String getGpgHashAlgorithm() {
+		return gpgHashAlgorithm;
+	}
+
+	public void setGpgHashAlgorithm(String gpgHashAlgorithm) {
+		this.gpgHashAlgorithm = gpgHashAlgorithm;
+	}
+
 	public List<String> getGpgArguments() {
 		return gpgArguments;
 	}
-	
+
 	public void setGpgArguments(List<String> gpgArguments) {
 		this.gpgArguments = gpgArguments;
 	}

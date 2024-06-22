@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +25,7 @@ import ru.r2cloud.apt.AptRepository;
 import ru.r2cloud.apt.AptRepositoryImpl;
 import ru.r2cloud.apt.FileTransport;
 import ru.r2cloud.apt.GpgSigner;
+import ru.r2cloud.apt.GpgSignerBC;
 import ru.r2cloud.apt.GpgSignerImpl;
 import ru.r2cloud.apt.Transport;
 import ru.r2cloud.apt.cli.model.CleanupCommand;
@@ -107,7 +108,19 @@ public class Main {
 			if (args.getGpgArguments() != null) {
 				config.setGpgArguments(args.getGpgArguments());
 			}
-			signer = new GpgSignerImpl(config);
+			config.setHashAlgorithm(args.getGpgHashAlgorithm());
+			config.setSecretKeyFilename(args.getGpgKeyfile());
+			if (config.getSecretKeyFilename() != null) {
+				try {
+					signer = new GpgSignerBC(config);
+				} catch (Exception e) {
+					LOG.error("unable to initialize GPG signer", e);
+					System.exit(-1);
+					return;
+				}
+			} else {
+				signer = new GpgSignerImpl(config);
+			}
 		}
 
 		AptRepository aptMan = new AptRepositoryImpl(args.getCodename(), args.getComponent(), signer, transport);
