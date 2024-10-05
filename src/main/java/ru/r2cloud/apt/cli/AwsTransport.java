@@ -18,6 +18,7 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
@@ -147,4 +148,18 @@ public class AwsTransport implements Transport {
 		client.deleteObject(bucket, basepath + path);
 	}
 
+	@Override
+	public long getFileSize(String path) throws IOException, ResourceDoesNotExistException {
+		GetObjectMetadataRequest req = new GetObjectMetadataRequest(bucket, basepath + path);
+		try {
+			ObjectMetadata meta = client.getObjectMetadata(req);
+			return meta.getContentLength();
+		} catch (AmazonServiceException e) {
+			if (e.getStatusCode() == 404) {
+				throw new ResourceDoesNotExistException();
+			} else {
+				throw e;
+			}
+		}
+	}
 }

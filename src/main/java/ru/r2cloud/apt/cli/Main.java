@@ -26,16 +26,18 @@ import ru.r2cloud.apt.AptRepositoryImpl;
 import ru.r2cloud.apt.FileTransport;
 import ru.r2cloud.apt.GpgSigner;
 import ru.r2cloud.apt.GpgSignerBC;
-import ru.r2cloud.apt.GpgSignerImpl;
 import ru.r2cloud.apt.Transport;
 import ru.r2cloud.apt.cli.model.CleanupCommand;
 import ru.r2cloud.apt.cli.model.CommandLineArgs;
 import ru.r2cloud.apt.cli.model.DeleteCommand;
 import ru.r2cloud.apt.cli.model.InitCommand;
 import ru.r2cloud.apt.cli.model.SaveCommand;
+import ru.r2cloud.apt.cli.model.SignCommand;
+import ru.r2cloud.apt.cli.model.ValidateCommand;
 import ru.r2cloud.apt.model.Architecture;
 import ru.r2cloud.apt.model.DebFile;
 import ru.r2cloud.apt.model.SignConfiguration;
+import ru.r2cloud.apt.model.ValidationError;
 
 public class Main {
 
@@ -46,8 +48,10 @@ public class Main {
 		DeleteCommand delete = new DeleteCommand();
 		SaveCommand save = new SaveCommand();
 		InitCommand init = new InitCommand();
+		ValidateCommand validate = new ValidateCommand();
+		SignCommand sign = new SignCommand();
 		CommandLineArgs args = new CommandLineArgs();
-		JCommander parser = JCommander.newBuilder().addObject(args).addCommand("init", init).addCommand("save", save).addCommand("cleanup", cleanup).addCommand("delete", delete).build();
+		JCommander parser = JCommander.newBuilder().addObject(args).addCommand("init", init).addCommand("save", save).addCommand("cleanup", cleanup).addCommand("delete", delete).addCommand("validate", validate).addCommand("sign", sign).build();
 		try {
 			parser.parse(argv);
 		} catch (ParameterException e) {
@@ -110,16 +114,12 @@ public class Main {
 			}
 			config.setHashAlgorithm(args.getGpgHashAlgorithm());
 			config.setSecretKeyFilename(args.getGpgKeyfile());
-			if (config.getSecretKeyFilename() != null) {
-				try {
-					signer = new GpgSignerBC(config);
-				} catch (Exception e) {
-					LOG.error("unable to initialize GPG signer", e);
-					System.exit(-1);
-					return;
-				}
-			} else {
-				signer = new GpgSignerImpl(config);
+			try {
+				signer = new GpgSignerBC(config);
+			} catch (Exception e) {
+				LOG.error("unable to initialize GPG signer", e);
+				System.exit(-1);
+				return;
 			}
 		}
 
@@ -143,15 +143,28 @@ public class Main {
 				}
 				aptMan.saveFiles(files);
 			} else if (parser.getParsedCommand().equals("init")) {
-				Architecture[] architectures = new Architecture[init.getArchs().size()];
-				for (int i = 0; i < init.getArchs().size(); i++) {
-					architectures[i] = Architecture.valueOf(init.getArchs().get(i).toUpperCase(Locale.UK));
-				}
-				aptMan.init(architectures);
+				aptMan.init(convertArchs(init.getArchs()));
 			} else if (parser.getParsedCommand().equals("cleanup")) {
 				aptMan.cleanup(cleanup.getKeepLast());
 			} else if (parser.getParsedCommand().equals("delete")) {
-				aptMan.deletePackages(new HashSet<>(delete.getPackages()));
+				if (delete.getPackages() != null && !delete.getPackages().isEmpty()) {
+					aptMan.deletePackages(new HashSet<>(delete.getPackages()));
+				}
+				if (delete.getArchs() != null && !delete.getArchs().isEmpty()) {
+					aptMan.deleteArchitectures(convertArchs(delete.getArchs()));
+				}
+			} else if (parser.getParsedCommand().equals("validate")) {
+				List<ValidationError> errors = aptMan.validate();
+				if (errors.isEmpty()) {
+					LOG.info("Repository is valid");
+				} else {
+					for (ValidationError cur : errors) {
+						LOG.info("{}: {}", cur.getCode().toString(), cur.getMessage());
+					}
+					LOG.info("Repository is NOT valid");
+				}
+			} else if (parser.getParsedCommand().equals("sign")) {
+				aptMan.sign();
 			} else {
 				LOG.error("unknown command: {}", parser.getParsedCommand());
 				parser.usage();
@@ -162,6 +175,14 @@ public class Main {
 			System.exit(-1);
 		}
 
+	}
+
+	private static Architecture[] convertArchs(List<String> init) {
+		Architecture[] architectures = new Architecture[init.size()];
+		for (int i = 0; i < init.size(); i++) {
+			architectures[i] = Architecture.valueOf(init.get(i).toUpperCase(Locale.UK));
+		}
+		return architectures;
 	}
 
 }
